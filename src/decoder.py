@@ -194,3 +194,100 @@ class JTypeInstruction(Instruction):
         rd = self._register_bank.get_alias(self.get_rd())
         imm = twos_comp_to_dec(self.get_imm())
         return f'jal {rd}, {imm}'
+    
+class STypeInstructions(Instruction):
+    def __init__(self, **kwds):
+        super().init(**kwds)
+
+    def get_imm(self):
+        res = slice_instruction(self._instr, 7, 11)
+        res += slice_instruction(self._instr, 25, 31)
+        return res
+
+    def name(self) -> str:
+        width = slice_instruction(self._instr, 12, 14)
+        match width:
+            case '000':
+                return 'sb'
+            case '001':
+                return 'sh'
+            case '010':
+                return 'sw'
+            case _:
+                raise Exception(f'Unknown S-Type Instruction: {self._instr}')
+
+    def exec(self):
+        imm = twos_comp_to_dec(self.get_imm())
+        rs1 = self._register_bank.get_register(self.get_rs1())
+        rs2 = self._register_bank.get_register(self.get_rs2())
+
+        width = 2 ** int(slice_instruction(self._instr, 12, 14), base=2)
+        value = dec_to_twos_comp(rs2, 32)
+
+        for i in range(width):
+            value_slice = slice_instruction(value, 24 - i*8, 32 - i*8)
+            self._memory.save_byte(rs1 + imm + i, value_slice)
+    
+    def mnem(self):
+        imm = twos_comp_to_dec(self.get_imm())
+        rs1 = self._register_bank.get_register(self.get_rs1())
+        rs2 = self._register_bank.get_register(self.get_rs2())
+        return f'{self.name()} {rs2}, {imm}({rs1})'
+
+class ITypeInstructions(Instruction):
+    def __init__(self, **kwds):
+        super().init(**kwds)
+
+    def get_imm(self):
+        res = slice_instruction(self._instr, 20, 31)
+        return res
+    
+    def name(self) -> str:
+        opcode = slice_instruction(self._instr, 0, 6)
+        if opcode == '1100111':
+            return 'jalr'
+        width = slice_instruction(self._instr, 12, 14)
+        match width:
+            case '000':
+                return 'lb'
+            case '001':
+                return 'lh'
+            case '010':
+                return 'lw'
+            case '100':
+                return 'lbu'
+            case '101':
+                return 'lhu'
+            case _:
+                raise Exception(f'Unknown S-Type Instruction: {self._instr}')
+
+    def exec(self):
+        imm = twos_comp_to_dec(self.get_imm())
+        rs1 = self._register_bank.get_register(self.get_rs1())
+
+        if self.name() == 'jalr':
+            dest = dec_to_twos_comp(rs1 + imm)
+            dest[0] = '0'
+            dest = twos_comp_to_dec(dest)
+            self._register_bank.set_register(self.get_rd(), self._pc + 4)
+            self._register_bank.set_register('pc', dest)
+            return
+
+        width = 2 ** int(slice_instruction(self._instr, 13, 14), base=2)
+        value = ''
+
+        for i in range(width):
+            value += self._memory.load_byte(rs1 + imm + width -1 - i)
+
+        if slice_instruction(self._instr, 12, 12) == '1': # unsigned
+            self._register_bank.set_register(self.get_rd(), to_uint(value))
+        else:
+            self._register_bank.set_register(self.get_rd(), twos_comp_to_dec(value))
+    
+    def mnem(self):
+        rs1 = self._register_bank.get_register(self.get_rs1())
+        rd = self._register_bank.get_register(self.get_rd())
+        if self.name() == 'jalr':
+            return f'{self.name()} {rd}, {rs1}, {imm}'
+        imm = twos_comp_to_dec(self.get_imm())
+        return f'{self.name()} {rd}, {imm}({rs1})'

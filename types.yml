@@ -1,0 +1,44 @@
+R:
+  - SLLI
+  - SRLI
+  - SRAI
+  - ADD
+  - SUB
+  - SLL
+  - SLT
+  - SLTU
+  - XOR
+  - SRL
+  - SRA
+  - OR
+  - AND
+  - MUL
+  - MULH
+  - MULHSU
+  - MULHU
+  - DIV
+  - DIVU
+  - REM
+  - REMU
+I:
+  - JALR
+  - LB
+  - LH
+  - LW
+  - LBU
+S:
+  - SB
+  - SH
+  - SW
+B:
+  - BEQ
+  - BNE
+  - BLT
+  - BGE
+  - BLTU
+  - BGEU
+U:
+  - LUI
+  - AUIPC
+J:
+  - JAL

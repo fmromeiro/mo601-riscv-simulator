@@ -12,6 +12,7 @@ class InstructionsCache:
         self._file.close()
 
     def load_instruction(self, address: int) -> int:
-        self._file.seek(address, 0)
+        addr = max(0, address - 0x100)
+        self._file.seek(addr, 0)
         instr = self._file.read(self._instr_size)
         return f'{int.from_bytes(instr, "little"):032b}'

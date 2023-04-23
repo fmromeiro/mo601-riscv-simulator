@@ -18,4 +18,4 @@ class RegisterBank:
         return self._bank.get(name, self._default)
 
     def get_alias(self, idx: int) -> str:
-        return REGISTER_ALIASES.get(idx)
+        return REGISTER_ALIASES[idx]

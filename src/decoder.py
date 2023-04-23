@@ -73,12 +73,14 @@ class Decoder:
                 return BTypeInstruction(instruction=instruction, register_bank=self._register_bank, memory=self._memory)
             case '0110111' | '0010111':
                 return UTypeInstruction(instruction=instruction, register_bank=self._register_bank, memory=self._memory)
+            case '1101111':
+                return JTypeInstruction(instruction=instruction, register_bank=self._register_bank, memory=self._memory)
             case _:
-                raise Exception(f'Unknown opcode in instruction: {self._instr}')
+                raise Exception(f'Unknown opcode in instruction: {instruction}')
 
 class BTypeInstruction(Instruction):
     def __init__(self, **kwds):
-        super().init(**kwds)
+        super().__init__(**kwds)
 
     def get_funct3(self):
         return slice_instruction(self._instr, 12, 14)
@@ -135,11 +137,11 @@ class BTypeInstruction(Instruction):
         rs1 = self._register_bank.get_alias(self.get_rs1())
         rs2 = self._register_bank.get_alias(self.get_rs2())
         imm = twos_comp_to_dec(self.get_imm())
-        return f'{self.name()} {rs1} {rs2} {imm}'
+        return f'{self.name()} {rs1}, {rs2}, {imm}'
 
 class UTypeInstruction(Instruction):
     def __init__(self, **kwds):
-        super().init(**kwds)
+        super().__init__(**kwds)
 
     def get_imm(self) -> str:
         return slice_instruction(self._instr, 12, 31) + 12 * '0'
@@ -164,13 +166,13 @@ class UTypeInstruction(Instruction):
         self._bump_pc()
     
     def mnem(self):
-        imm = twos_comp_to_dec(self.get_imm())
+        imm = twos_comp_to_dec(self.get_imm()[:-12])
         rd = self._register_bank.get_alias(self.get_rd())
-        return f'{self.name} {rd} {imm}'
+        return f'{self.name()} {rd}, {imm}'
 
 class JTypeInstruction(Instruction):
     def __init__(self, **kwds):
-        super().init(**kwds)
+        super().__init__(**kwds)
 
     def get_imm(self):
         res = 12 * slice_instruction(self._instr, 31, 31)
@@ -191,4 +193,4 @@ class JTypeInstruction(Instruction):
     def mnem(self):
         rd = self._register_bank.get_alias(self.get_rd())
         imm = twos_comp_to_dec(self.get_imm())
-        return f'jal {rd} {imm}'
+        return f'jal {rd}, {imm}'

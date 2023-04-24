@@ -3,6 +3,8 @@ from memory import Memory
 from instructions import InstructionsCache
 from utils import *
 
+import rtype_helper
+
 
 class Instruction:
     _instr: str
@@ -204,9 +206,11 @@ class STypeInstructions(Instruction):
         res += slice_instruction(self._instr, 25, 31)
         return res
 
+    def get_funct3(self):
+        return slice_instruction(self._instr, 12, 14)
+
     def name(self) -> str:
-        width = slice_instruction(self._instr, 12, 14)
-        match width:
+        match self.get_funct3():
             case '000':
                 return 'sb'
             case '001':
@@ -221,7 +225,7 @@ class STypeInstructions(Instruction):
         rs1 = self._register_bank.get_register(self.get_rs1())
         rs2 = self._register_bank.get_register(self.get_rs2())
 
-        width = 2 ** int(slice_instruction(self._instr, 12, 14), base=2)
+        width = 2 ** int(self.get_funct3(), base=2)
         value = dec_to_twos_comp(rs2, 32)
 
         for i in range(width):
@@ -241,13 +245,15 @@ class ITypeInstructions(Instruction):
     def get_imm(self):
         res = slice_instruction(self._instr, 20, 31)
         return res
+
+    def get_funct3(self):
+        return slice_instruction(self._instr, 12, 14)
     
     def name(self) -> str:
         opcode = slice_instruction(self._instr, 0, 6)
         if opcode == '1100111':
             return 'jalr'
-        width = slice_instruction(self._instr, 12, 14)
-        match width:
+        match self.get_funct3():
             case '000':
                 return 'lb'
             case '001':
@@ -291,3 +297,33 @@ class ITypeInstructions(Instruction):
             return f'{self.name()} {rd}, {rs1}, {imm}'
         imm = twos_comp_to_dec(self.get_imm())
         return f'{self.name()} {rd}, {imm}({rs1})'
+
+class RTypeInstruction(Instruction):
+    def __init__(self, **kwds):
+        super().__init__(**kwds)
+
+    def get_imm(self):
+        return slice_instruction(self._instr, 20, 31)
+
+    def get_funct3(self):
+        return slice_instruction(self._instr, 12, 14)
+
+    def get_funct7(self):
+        return slice_instruction(self._instr, 25, 31)
+    
+    def name(self) -> str:
+        opcode = slice_instruction(self._instr, 0, 6)
+        funct3 = self.get_funct3()
+        funct7 = self.get_funct7()
+        return rtype_helper.get_name(opcode, funct3, funct7, self._instr)
+
+    def exec(self):
+        imm = twos_comp_to_dec(self.get_imm())
+        rs1 = self._register_bank.get_register(self.get_rs1())
+        rs2 = self._register_bank.get_register(self.get_rs2())
+        name = self.name()
+
+        value = rtype_helper.exec(name, rs1, rs2, imm)
+
+        self._register_bank.set_register(self.get_rd(), value)
+

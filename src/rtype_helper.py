@@ -1,3 +1,5 @@
+from utils import *
+
 def get_name(opcode, funct3, funct7, _instr):
     if opcode == '0010011':
             match funct3:
@@ -73,70 +75,73 @@ def get_name(opcode, funct3, funct7, _instr):
 
 
 def addi(rs1, rs2, imm):
-    return rs1 + imm
+    return rs1 + twos_comp_to_dec(imm)
 
 def slli(rs1, rs2, imm):
-    pass
+    return rs1 << twos_comp_to_dec(imm)
 
 def slti(rs1, rs2, imm):
-    pass
+    return 1 if rs1 < twos_comp_to_dec(imm) else 0
 
 def sltiu(rs1, rs2, imm):
-    pass
+    return 1 if int_to_uint(rs1) < to_uint(imm) else 0
 
 def xori(rs1, rs2, imm):
-    pass
+    return rs1 ^ to_uint(imm)
 
 def ori(rs1, rs2, imm):
-    pass
+    return rs1 | to_uint(imm)
 
 def andi(rs1, rs2, imm):
-    pass
+    return rs1 & to_uint(imm)
 
 def add(rs1, rs2, imm):
-    pass
+    return rs1 + rs2
 
 def sub(rs1, rs2, imm):
-    pass
+    return rs1 - rs2
 
 def sll(rs1, rs2, imm):
-    pass
+    return rs1 << rs2
 
-def sltv(rs1, rs2, imm):
-    pass
+def slt(rs1, rs2, imm):
+    return 1 if rs1 < rs2 else 0
 
 def sltu(rs1, rs2, imm):
-    pass
+    return 1 if int_to_uint(rs1) < to_uint(imm) else 0
 
 def xor(rs1, rs2, imm):
-    pass
+    return rs1 ^ rs2
 
 def or_(rs1, rs2, imm):
-    pass
+    return rs1 | rs2
 
 def and_(rs1, rs2, imm):
-    pass
+    return rs1 & rs2
 
 def mul(rs1, rs2, imm):
-    pass
+    return (rs1 * rs2) & 0b11111111111111111111111111111111
 
 def mulh(rs1, rs2, imm):
-    pass
+    return (rs1 * rs2) & 0b1111111111111111111111111111111100000000000000000000000000000000
+
+def mulhu(rs1, rs2, imm):
+    return (int_to_uint(rs1) * int_to_uint(rs2)) & 0b1111111111111111111111111111111100000000000000000000000000000000
 
 def mulhsu(rs1, rs2, imm):
-    pass
+    return (rs1 * int_to_uint(rs2)) & 0b1111111111111111111111111111111100000000000000000000000000000000
 
 def div(rs1, rs2, imm):
-    pass
+    return rs1 // rs2
 
 def divu(rs1, rs2, imm):
-    pass
+    return int_to_uint(rs1) // int_to_uint(rs2)
 
 def rem(rs1, rs2, imm):
-    pass
+    return rs1 % rs2
 
 def remu(rs1, rs2, imm):
-    pass
+    return int_to_uint(rs1) % int_to_uint(rs2)
 
 __fundict = {
     'remu': remu,
@@ -150,7 +155,7 @@ __fundict = {
     'or': or_,
     'xor': xor,
     'sltu': sltu,
-    'sltv': sltv,
+    'slt': slt,
     'sll': sll,
     'sub': sub,
     'add': add,

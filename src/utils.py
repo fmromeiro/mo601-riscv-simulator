@@ -1,11 +1,16 @@
 WORD_SIZE = 32
 BYTES_IN_WORD = 4
 
+MASK_INT_TO_UINT = 1 << 32
+
 def slice_instruction(instr: str, lo: int, hi: int) -> str:
     return instr[WORD_SIZE - 1 - hi : WORD_SIZE - lo]
 
 def to_uint(bits: str) -> int:
     return int(bits, base=2)
+
+def int_to_uint(n: int) -> int:
+    return n + MASK_INT_TO_UINT
 
 def twos_comp_to_dec(val: str) -> int:
     if val[0] == '0':

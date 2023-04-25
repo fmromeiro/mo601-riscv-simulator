@@ -234,8 +234,8 @@ class STypeInstructions(Instruction):
     
     def mnem(self):
         imm = twos_comp_to_dec(self.get_imm())
-        rs1 = self._register_bank.get_register(self.get_rs1())
-        rs2 = self._register_bank.get_register(self.get_rs2())
+        rs1 = self._register_bank.get_alias(self.get_rs1())
+        rs2 = self._register_bank.get_alias(self.get_rs2())
         return f'{self.name()} {rs2}, {imm}({rs1})'
 
 class ITypeInstructions(Instruction):
@@ -291,8 +291,8 @@ class ITypeInstructions(Instruction):
             self._register_bank.set_register(self.get_rd(), twos_comp_to_dec(value))
     
     def mnem(self):
-        rs1 = self._register_bank.get_register(self.get_rs1())
-        rd = self._register_bank.get_register(self.get_rd())
+        rs1 = self._register_bank.get_alias(self.get_rs1())
+        rd = self._register_bank.get_alias(self.get_rd())
         if self.name() == 'jalr':
             return f'{self.name()} {rd}, {rs1}, {imm}'
         imm = twos_comp_to_dec(self.get_imm())
@@ -318,7 +318,7 @@ class RTypeInstruction(Instruction):
         return rtype_helper.get_name(opcode, funct3, funct7, self._instr)
 
     def exec(self):
-        imm = twos_comp_to_dec(self.get_imm())
+        imm = self.get_imm()
         rs1 = self._register_bank.get_register(self.get_rs1())
         rs2 = self._register_bank.get_register(self.get_rs2())
         name = self.name()
@@ -327,3 +327,12 @@ class RTypeInstruction(Instruction):
 
         self._register_bank.set_register(self.get_rd(), value)
 
+    def mnem(self):
+        opcode = slice_instruction(self._instr, 0, 6)
+        rs1 = self._register_bank.get_alias(self.get_rs1())
+        rd = self._register_bank.get_alias(self.get_rd())
+        if opcode == '0010011':
+            imm = twos_comp_to_dec(self.get_imm())
+            return f'{self.name()} {rd}, {rs1}, {imm}'
+        rs2 = self._register_bank.get_alias(self.get_rs2())
+        return f'{self.name()} {rd}, {rs1}, {rs2}'

@@ -59,11 +59,24 @@ def sub(rs1, rs2, imm):
 def sll(rs1, rs2, imm):
     return rs1 << rs2
 
+def srl(rs1, rs2, imm):
+    b_rs1 = dec_to_twos_comp(rs1, 32)
+    srl_rs1 = '0' * rs2 + b_rs1[:32-rs2]
+    return twos_comp_to_dec(srl_rs1)
+
+def sra(rs1, rs2, imm):
+    b_rs1 = dec_to_twos_comp(rs1, 32)
+    # print(rs1, rs2, b_rs1)
+    sra_rs1 = extend_signal(b_rs1[:32-rs2], 32)
+    return twos_comp_to_dec(sra_rs1)
+
 def slt(rs1, rs2, imm):
     return 1 if rs1 < rs2 else 0
 
 def sltu(rs1, rs2, imm):
-    return 1 if int_to_uint(rs1) < to_uint(imm) else 0
+    u_rs1 = to_uint(dec_to_twos_comp(rs1, 32))
+    u_rs2 = to_uint(dec_to_twos_comp(rs2, 32))
+    return int(u_rs1 < u_rs2)
 
 def xor(rs1, rs2, imm):
     return rs1 ^ rs2
@@ -113,6 +126,8 @@ __fundict = {
     'sltu': sltu,
     'slt': slt,
     'sll': sll,
+    'srl': srl,
+    'sra': sra,
     'sub': sub,
     'add': add,
 }

@@ -166,7 +166,7 @@ class BTypeInstruction(Instruction):
         rs1 = self._register_bank.get_alias(self.get_rs1())
         rs2 = self._register_bank.get_alias(self.get_rs2())
         imm = twos_comp_to_dec(self.get_imm())
-        return f'{self.name()} {rs1}, {rs2}, {imm}'
+        return f'{self.name()} {rs1}, {rs2}, 0x{self._pc + imm:x}'
 
 class UTypeInstruction(Instruction):
     def __init__(self, **kwds):
@@ -257,7 +257,7 @@ class STypeInstruction(Instruction):
 
         for i in range(width):
             value_slice = slice_instruction(value, i*8, i*8 + 7)
-            print(rs1 + imm + width - i - 1, i, value, value_slice)
+            # print(self.name(), rs1 + imm + width - i - 1, i, value, value_slice)
             self._memory.save_byte(rs1 + imm + width - i - 1, value_slice)
         self._bump_pc()
     
@@ -339,14 +339,15 @@ class ITypeInstruction(Instruction):
 
         self._bump_pc()
         if self.name()[0] == 'l':
-            width = 2 ** int(slice_instruction(self._instr, 13, 14), base=2)
+            width = 2 ** int(slice_instruction(self._instr, 12, 13), base=2)
             value = ''
 
             for i in range(width):
-                a = self._memory.load_byte(rs1 + imm + width -1 - i)
-                value += self._memory.load_byte(rs1 + imm + width -1 - i)
+                a = self._memory.load_byte(rs1 + imm + i)
+                value += self._memory.load_byte(rs1 + imm + i)
+                # print(self.name(), value, a, width, i, rs1 + imm + i)
 
-            if slice_instruction(self._instr, 12, 12) == '1': # unsigned
+            if slice_instruction(self._instr, 14, 14) == '1': # unsigned
                 self._register_bank.set_register(self.get_rd(), to_uint(value))
             else:
                 self._register_bank.set_register(self.get_rd(), twos_comp_to_dec(value))
@@ -362,7 +363,7 @@ class ITypeInstruction(Instruction):
             case 'addi':
                 val = self._rs1_value + imm
             case 'slti':
-                val = 1 if self._rs1_value < twos_comp_to_dec(imm) else 0
+                val = 1 if self._rs1_value < imm else 0
             case 'sltiu':
                 val = 1 if u_rs1 < u_imm else 0
             case 'xori':
@@ -372,7 +373,10 @@ class ITypeInstruction(Instruction):
             case 'andi':
                 val = twos_comp_to_dec(''.join(str(int(x == y == '1')) for x, y in zip(b_imm, b_rs1)))
             case 'slli':
-                val = twos_comp_to_dec((b_rs1 + shamt * '0')[:32])
+                val = twos_comp_to_dec((b_rs1 + shamt * '0')[-32:])
+                # if self._pc == 0x164:
+                #     print(self._rs1_value, b_rs1, self.get_imm(), shamt, val)
+                #     input()
             case 'srli':
                 val = twos_comp_to_dec((shamt * '0' + b_rs1)[:32])
             case 'srai':
@@ -416,7 +420,7 @@ class RTypeInstruction(Instruction):
         rs2 = self._register_bank.get_register(self.get_rs2())
         name = self.name()
         # print(self._memory._memory)
-        # print(self.get_rs1(), rs1, self.get_rs2(), rs2, name)
+        # print(self._instr)
 
         value = rtype_helper.exec(name, rs1, rs2, imm)
 

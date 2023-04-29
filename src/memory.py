@@ -12,5 +12,7 @@ class Memory:
     def save_byte(self, address: int, value: str) -> None:
         if value != self._default:
             self._memory[address] = value
+        elif address in self._memory:
+            del self._memory[address]
 
     # TODO: implementar helpers para acessar bytes específicos

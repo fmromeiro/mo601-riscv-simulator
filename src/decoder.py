@@ -56,7 +56,7 @@ class Instruction:
             vals[val] = to_uint(dec_to_twos_comp(vals[val], 32))
         instr = int(self._instr, 2)
         res = f'PC={self._pc:08x}'
-        res += f' {instr:08x}'
+        res += f' [{instr:08x}]'
         res += f' x{self.get_rd():02d}={vals["rd"]:08x}'
         res += f' x{self.get_rs1():02d}={vals["rs1"]:08x}'
         res += f' x{self.get_rs2():02d}={vals["rs2"]:08x}'

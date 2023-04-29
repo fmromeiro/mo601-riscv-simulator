@@ -11,7 +11,7 @@ BIN_SUFFIX = .bin
 ECHO 	= /bin/echo
 
 CFLAGS 		= -g -march=rv32im -std=gnu99 -mabi=ilp32
-LINK_OPTS 	= -T riscv/test.ld -nostartfiles
+LINK_OPTS 	= -nostartfiles -nostdinc -nostdlib
 
 $(ELF_DIR):
 	mkdir -p $(ELF_DIR)
@@ -21,12 +21,12 @@ $(BIN_DIR):
 
 # Compile programs
 $(ELF_DIR)/%$(ELF_SUFFIX): %.c
-	$(CC) $(CFLAGS) riscv/crt.s $< -o $@ $(LIB_DIR) $(LIBS) $(CFLAGS) $(LINK_OPTS)
+	$(CC) $(CFLAGS) riscv/crt.S $< -o $@ $(LIB_DIR) $(LIBS) $(CFLAGS) $(LINK_OPTS)
 
 $(BIN_DIR)/%$(BIN_SUFFIX): $(ELF_DIR)/%$(ELF_SUFFIX)
 	$(OBJCOPY) -O binary $< $@
 
-build: $(ELF_DIR) $(BIN_DIR) $(patsubst %.c,$(BIN_DIR)/%$(BIN_SUFFIX),$(wildcard *.c)) $(patsubst %.c,$(ELF_DIR)/%$(ELF_SUFFIX),$(wildcard *.c))
+build: $(ELF_DIR) $(BIN_DIR) $(patsubst %.c,$(BIN_DIR)/%$(BIN_SUFFIX),$(wildcard *.c))
 
 run: build
 	# TODO

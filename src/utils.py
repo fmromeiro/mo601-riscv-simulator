@@ -3,6 +3,14 @@ BYTES_IN_WORD = 4
 
 MASK_INT_TO_UINT = 1 << 32
 
+def swap_endianness(value: str) -> str:
+    res = ''
+    i = len(value) - 8
+    while i >= 0:
+        res += value[i: i + 8]
+        i -= 8
+    return res
+
 def slice_instruction(instr: str, lo: int, hi: int) -> str:
     return instr[WORD_SIZE - 1 - hi : WORD_SIZE - lo]
 
@@ -41,3 +49,6 @@ def dec_to_twos_comp(val: int, size: int) -> str:
         res = str((i + c) % 2) + res
         c = (i + c) // 2
     return res
+
+def extend_signal(val: str, size: int) -> str:
+    return val[0] * (size - len(val)) + val

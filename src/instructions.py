@@ -1,18 +1,29 @@
 import io
+from memory import Memory
+from utils import dec_to_twos_comp
 
 class InstructionsCache:
-    _file: io.BufferedReader
+    _memory: Memory
     _instr_size: int
 
-    def __init__(self, path: str, instr_size: int):
-        self._file = open(path, 'rb')
+    def __init__(self, path: str, instr_size: int, memory: Memory):
         self._instr_size = instr_size
+        self._memory = memory
+        self._fill_memory(path)
+
+    def _fill_memory(self, path):
+        i = 0
+        with open(path, 'rb') as f:
+            while True:
+                value = f.read(1)
+                if value == b'': break
+                value = dec_to_twos_comp(int.from_bytes(value, 'little'), 8)
+                self._memory.save_byte(i, value)
+                i += 1
 
     def close(self):
         self._file.close()
 
     def load_instruction(self, address: int) -> int:
-        addr = max(0, address - 0x100)
-        self._file.seek(addr, 0)
-        instr = self._file.read(self._instr_size)
-        return f'{int.from_bytes(instr, "little"):032b}'
+        return ''.join(
+            reversed([self._memory.load_byte(address + i) for i in range(4)]))

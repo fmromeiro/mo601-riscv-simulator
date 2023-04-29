@@ -16,15 +16,12 @@ class Simulator:
         instr = self._instructions_cache.load_instruction(self._register_bank.get_register('pc'))
         return self.decoder.build_instruction(instr)
 
-    def simulate_cycle(self):
+    def simulate_cycle(self) -> bool:
         instr = self.instruction_fetch()
         instr.exec()
         self.log.write(instr.log() + '\n')
-        print(instr.log())
+        return not instr.is_end()
 
     def simulate(self):
-        self._register_bank.set_register('pc', 0x100)
-        while True:
-            self.simulate_cycle()
-            if self._register_bank.get_register('pc') == 0:
-                break
+        while self.simulate_cycle():
+            pass

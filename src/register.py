@@ -12,7 +12,8 @@ class RegisterBank:
         self._default = default
 
     def set_register(self, name, value: int) -> None:
-        self._bank[name] = value
+        if name != 0:
+            self._bank[name] = value
 
     def get_register(self, name) -> int:
         return self._bank.get(name, self._default)

@@ -60,7 +60,7 @@ class Instruction:
         res += f' x{self.get_rd():02d}={vals["rd"]:08x}'
         res += f' x{self.get_rs1():02d}={vals["rs1"]:08x}'
         res += f' x{self.get_rs2():02d}={vals["rs2"]:08x}'
-        res += ' ' + self.mnem()
+        res += f' {self.name():<8}' + self.mnem()
         return res
 
     def is_end(self):
@@ -101,8 +101,11 @@ class EBreakInstruction(Instruction):
     def exec(self):
         return
 
-    def mnem(self):
+    def name(self):
         return 'ebreak'
+
+    def mnem(self):
+        return ''
 
     def is_end(self):
         return True
@@ -166,7 +169,7 @@ class BTypeInstruction(Instruction):
         rs1 = self._register_bank.get_alias(self.get_rs1())
         rs2 = self._register_bank.get_alias(self.get_rs2())
         imm = twos_comp_to_dec(self.get_imm())
-        return f'{self.name()} {rs1}, {rs2}, 0x{self._pc + imm:x}'
+        return f'{rs1}, {rs2}, 0x{self._pc + imm:x}'
 
 class UTypeInstruction(Instruction):
     def __init__(self, **kwds):
@@ -197,7 +200,7 @@ class UTypeInstruction(Instruction):
     def mnem(self):
         imm = twos_comp_to_dec(self.get_imm()[:-12])
         rd = self._register_bank.get_alias(self.get_rd())
-        return f'{self.name()} {rd}, {imm}'
+        return f'{rd}, {imm}'
 
 class JTypeInstruction(Instruction):
     def __init__(self, **kwds):
@@ -265,7 +268,7 @@ class STypeInstruction(Instruction):
         imm = twos_comp_to_dec(self.get_imm())
         rs1 = self._register_bank.get_alias(self.get_rs1())
         rs2 = self._register_bank.get_alias(self.get_rs2())
-        return f'{self.name()} {rs2}, {imm}({rs1})'
+        return f'{rs2}, {imm}({rs1})'
 
 class ITypeInstruction(Instruction):
     def __init__(self, **kwds):
@@ -390,10 +393,10 @@ class ITypeInstruction(Instruction):
         pc = self._register_bank.get_register('pc')
         name = self.name()
         if name == 'jalr':
-            return f'{self.name()} {rd}, {rs1}, 0x{pc:x}'
+            return f'{rd}, {rs1}, 0x{pc:x}'
         elif name[0] == 'l':
-            return f'{self.name()} {rd}, {imm}({rs1})'
-        return f'{self.name()} {rd}, {rs1}, {imm}'
+            return f'{rd}, {imm}({rs1})'
+        return f'{rd}, {rs1}, {imm}'
 
 class RTypeInstruction(Instruction):
     def __init__(self, **kwds):
@@ -433,6 +436,6 @@ class RTypeInstruction(Instruction):
         rd = self._register_bank.get_alias(self.get_rd())
         if opcode == '0010011':
             imm = twos_comp_to_dec(self.get_imm())
-            return f'{self.name()} {rd}, {rs1}, {imm}'
+            return f'{rd}, {rs1}, {imm}'
         rs2 = self._register_bank.get_alias(self.get_rs2())
-        return f'{self.name()} {rd}, {rs1}, {rs2}'
+        return f'{rd}, {rs1}, {rs2}'

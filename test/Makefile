@@ -11,7 +11,7 @@ BIN_SUFFIX = .bin
 ECHO 	= /bin/echo
 
 CFLAGS 		= -g -march=rv32im -std=gnu99 -mabi=ilp32
-LINK_OPTS 	= -nostartfiles -nostdinc -nostdlib
+LINK_OPTS 	= -T riscv/test.ld -nostartfiles -nostdinc -nostdlib
 
 $(ELF_DIR):
 	mkdir -p $(ELF_DIR)

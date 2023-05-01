@@ -5,12 +5,13 @@ import decoder
 from utils import *
 
 class Simulator:
-    def __init__(self, instructions_cache: InstructionsCache, register_bank: RegisterBank, memory: Memory, log_file):
+    def __init__(self, instructions_cache: InstructionsCache, register_bank: RegisterBank, memory: Memory, log_file, offset):
         self._instructions_cache = instructions_cache
         self._register_bank = register_bank
         self._memory = memory
         self.decoder = decoder.Decoder(register_bank, memory)
         self.log = log_file
+        self._offset = offset
 
     def instruction_fetch(self) -> decoder.Instruction:
         instr = self._instructions_cache.load_instruction(self._register_bank.get_register('pc'))
@@ -23,5 +24,6 @@ class Simulator:
         return not instr.is_end()
 
     def simulate(self):
+        self._register_bank.set_register('pc', self._offset)
         while self.simulate_cycle():
             pass

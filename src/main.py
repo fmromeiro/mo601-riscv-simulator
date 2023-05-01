@@ -5,15 +5,18 @@ from instructions import InstructionsCache
 from memory import Memory
 from register import RegisterBank
 
+MEM_OFFSET = 0x1d8
+EXE_OFFSET = 0x1d8
+
 def find_tests() -> [os.DirEntry]:
     return sorted([test for test in os.scandir('./test/build/bin') if test.name.endswith('.bin')], key= lambda x: x.name)
 
 def run_test(file: os.DirEntry):
     bank = RegisterBank()
     memory = Memory()
-    cache = InstructionsCache(file.path, 4, memory)
+    cache = InstructionsCache(file.path, 4, memory, MEM_OFFSET)
     with open(os.path.join('test/', file.name[:-4] + '.log'), 'tw') as log:
-        sim = Simulator(cache, bank, memory, log)
+        sim = Simulator(cache, bank, memory, log, EXE_OFFSET)
         sim.simulate()
 
 

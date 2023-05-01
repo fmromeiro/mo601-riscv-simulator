@@ -6,13 +6,13 @@ class InstructionsCache:
     _memory: Memory
     _instr_size: int
 
-    def __init__(self, path: str, instr_size: int, memory: Memory):
+    def __init__(self, path: str, instr_size: int, memory: Memory, offset: int):
         self._instr_size = instr_size
         self._memory = memory
-        self._fill_memory(path)
+        self._fill_memory(path, offset)
 
-    def _fill_memory(self, path):
-        i = 0
+    def _fill_memory(self, path, offset):
+        i = offset
         with open(path, 'rb') as f:
             while True:
                 value = f.read(1)

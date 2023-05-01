@@ -100,15 +100,37 @@ def mulhsu(rs1, rs2, imm):
     return (rs1 * int_to_uint(rs2)) & 0b1111111111111111111111111111111100000000000000000000000000000000
 
 def div(rs1, rs2, imm):
+    if rs1 == -(2**31) and rs2 == -1:
+        return rs1
+    if rs2 == 0:
+        return -1
+    if rs1 < 0:
+        if rs2 < 0:
+            return (-rs1)//(-rs2)
+        return -((-rs1)//rs2)
+    if rs2 < 0:
+        return -(rs1//(-rs2))
     return rs1 // rs2
 
 def divu(rs1, rs2, imm):
     return int_to_uint(rs1) // int_to_uint(rs2)
 
 def rem(rs1, rs2, imm):
+    if rs1 == -(2**31) and rs2 == -1:
+        return 0
+    if rs2 == 0:
+        return rs1
+    if rs1 < 0:
+        if rs2 < 0:
+            return (-rs1)%(-rs2)
+        return -((-rs1)%rs2)
+    if rs2 < 0:
+        return -(rs1%(-rs2))
     return rs1 % rs2
 
 def remu(rs1, rs2, imm):
+    if rs2 == 0:
+        return 2**32 - 1
     return int_to_uint(rs1) % int_to_uint(rs2)
 
 __fundict = {

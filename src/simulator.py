@@ -25,5 +25,6 @@ class Simulator:
 
     def simulate(self):
         self._register_bank.set_register('pc', self._offset)
+        clock = 0
         while self.simulate_cycle():
-            pass
+            clock += 1

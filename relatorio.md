@@ -11,7 +11,7 @@ Nesse projeto implementamos um simulador de RISC-V 32IM em Python 3.10. Ele lê 
 
 O simulador foi programado e testado com Python 3.10.10. O script de preparação dos testes depende do comando `riscv64-linux-gnu-objcopy`.
 
-Para executar o projeto, primeiro transformamos os arquivos ELF compilados para arquivos binários que o simulador consegue interpretar. Para isso, executamos o comando a seguir, substituindo [dir] pela pasta onde os arquivos ELF (de extensão .riscv) estão localizados.
+Para executar o projeto, primeiro transformamos os arquivos ELF compilados para arquivos binários que o simulador consegue interpretar. Para isso, executamos o comando a seguir, substituindo `[dir]` pela pasta onde os arquivos ELF (de extensão .riscv) estão localizados.
 
 > `./build.sh [dir]`
 
@@ -46,3 +46,7 @@ A main itera pelos binários na pasta de teste e, para cada um, cria novas inst�
 Para testar executamos os códigos do ACStone pelo simulador e observamos que todos eles terminavam a execução. Também selecionamos exemplos específicos e comparamos o resultado do simulador com os comentários do ACStone.
 
 ## Conclusão
+
+Neste projeto estudamos as ferramentas `objdump` e `objcopy`, relevantes para investigar e manipular arquivos executáveis, para entender o formato dos arquivos ELF e para transformá-los em um formato mais fácil de interpretar. Também estudamos a documentação do RISC-V para descobrir quais instruções seriam implementadas, como elas são codificadas, quais seus comportamentos específicos e qual o seu modelo de memória.
+
+Além disso também conseguimos ter noções gerais de questões envolvidas em compiladores, como representação de memória e conversão entre tipos.

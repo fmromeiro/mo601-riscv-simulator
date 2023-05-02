@@ -1,3 +1,4 @@
 test/build
 __pycache__/
 *.log
+Programas RISC-V compilados/

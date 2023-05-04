@@ -261,7 +261,7 @@ class STypeInstruction(Instruction):
         for i in range(width):
             value_slice = slice_instruction(value, i*8, i*8 + 7)
             # print(self.name(), rs1 + imm + width - i - 1, i, value, value_slice)
-            self._memory.save_byte(rs1 + imm + width - i - 1, value_slice)
+            self._memory.save_byte(rs1 + imm + i, value_slice)
         self._bump_pc()
     
     def mnem(self):
@@ -343,12 +343,13 @@ class ITypeInstruction(Instruction):
         self._bump_pc()
         if self.name()[0] == 'l':
             width = 2 ** int(slice_instruction(self._instr, 12, 13), base=2)
-            value = ''
+            value = []
 
             for i in range(width):
                 a = self._memory.load_byte(rs1 + imm + i)
-                value += self._memory.load_byte(rs1 + imm + i)
+                value.append(self._memory.load_byte(rs1 + imm + i))
                 # print(self.name(), value, a, width, i, rs1 + imm + i)
+            value = ''.join(reversed(value))
 
             if slice_instruction(self._instr, 14, 14) == '1': # unsigned
                 self._register_bank.set_register(self.get_rd(), to_uint(value))

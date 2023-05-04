@@ -18,7 +18,7 @@ def to_uint(bits: str) -> int:
     return int(bits, base=2)
 
 def int_to_uint(n: int) -> int:
-    return n + MASK_INT_TO_UINT
+    return to_uint(dec_to_twos_comp(n, 32))
 
 def twos_comp_to_dec(val: str) -> int:
     if val[0] == '0':

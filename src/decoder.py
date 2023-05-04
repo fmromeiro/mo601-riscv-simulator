@@ -198,7 +198,7 @@ class UTypeInstruction(Instruction):
         self._bump_pc()
     
     def mnem(self):
-        imm = twos_comp_to_dec(self.get_imm()[:-12])
+        imm = to_uint(self.get_imm()[:-12])
         rd = self._register_bank.get_alias(self.get_rd())
         return f'{rd}, {imm}'
 
@@ -225,7 +225,7 @@ class JTypeInstruction(Instruction):
     def mnem(self):
         rd = self._register_bank.get_alias(self.get_rd())
         imm = twos_comp_to_dec(self.get_imm())
-        return f'jal {rd}, 0x{self._pc + imm:x}'
+        return f'{rd}, 0x{self._pc + imm:x}'
     
 class STypeInstruction(Instruction):
     def __init__(self, **kwds):
@@ -396,6 +396,10 @@ class ITypeInstruction(Instruction):
             return f'{rd}, {rs1}, 0x{pc:x}'
         elif name[0] == 'l':
             return f'{rd}, {imm}({rs1})'
+        elif name == 'sltiu':
+            return f'{rd}, {rs1}, {to_uint(self.get_imm())}'
+        elif name != 'slti' and name[0] == 's':
+            imm = to_uint(self.get_imm()[-5:])
         return f'{rd}, {rs1}, {imm}'
 
 class RTypeInstruction(Instruction):
@@ -425,7 +429,7 @@ class RTypeInstruction(Instruction):
         # print(self._memory._memory)
         # print(self._instr)
 
-        value = rtype_helper.exec(name, rs1, rs2, imm)
+        value = rtype_helper.exec(name, rs1, rs2, imm) & 0xffffffff
 
         self._register_bank.set_register(self.get_rd(), value)
         self._bump_pc()

@@ -5,7 +5,7 @@ from instructions import InstructionsCache
 from memory import Memory
 from register import RegisterBank
 
-MEM_OFFSET = 0x1d8
+MEM_OFFSET = 0x154
 EXE_OFFSET = 0x1d8
 
 def find_tests() -> [os.DirEntry]:
@@ -28,4 +28,3 @@ if __name__ == '__main__':
         except:
             print(f'Error while running test {test.name}:')
             print(traceback.format_exc())
-            input()

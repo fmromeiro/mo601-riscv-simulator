@@ -91,13 +91,13 @@ def mul(rs1, rs2, imm):
     return (rs1 * rs2) & 0b11111111111111111111111111111111
 
 def mulh(rs1, rs2, imm):
-    return (rs1 * rs2) & 0b1111111111111111111111111111111100000000000000000000000000000000
+    return ((rs1 * rs2) & 0xffffffff00000000) >> 32
 
 def mulhu(rs1, rs2, imm):
-    return (int_to_uint(rs1) * int_to_uint(rs2)) & 0b1111111111111111111111111111111100000000000000000000000000000000
+    return ((int_to_uint(rs1) * int_to_uint(rs2)) & 0xffffffff00000000) >> 32
 
 def mulhsu(rs1, rs2, imm):
-    return (rs1 * int_to_uint(rs2)) & 0b1111111111111111111111111111111100000000000000000000000000000000
+    return ((rs1 * int_to_uint(rs2)) & 0xffffffff00000000) >> 32
 
 def div(rs1, rs2, imm):
     if rs1 == -(2**31) and rs2 == -1:
